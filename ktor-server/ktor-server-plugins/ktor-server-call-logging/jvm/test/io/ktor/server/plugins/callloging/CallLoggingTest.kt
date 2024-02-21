@@ -20,6 +20,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import io.ktor.util.logging.Logger
 import kotlinx.coroutines.*
+import kotlinx.coroutines.slf4j.*
 import org.fusesource.jansi.*
 import org.slf4j.*
 import org.slf4j.event.*
@@ -529,6 +530,33 @@ class CallLoggingTest {
                 "DEBUG: Unhandled: GET - /. Exception class io.ktor.server.plugins.BadRequestException: Message of exception" // ktlint-disable max-line-length
             )
         }
+    }
+
+    @Test
+    fun `dont override MDC with configured entry`() = testApplication {
+        environment {
+            log = logger
+        }
+        application {
+            install(CallLogging) {
+                mdc("hardcoded") { "1" }
+                mdc("mdc-uri") { it.request.uri }
+
+                format { it.request.uri }
+            }
+        }
+        routing {
+            get {
+                MDC.put("name", "<name>")
+
+                withContext(MDCContext()) {
+                    call.respondText { "OK" }
+                }
+            }
+        }
+
+        client.get("/")
+        assertContains(messages, "INFO: / [hardcoded=1, mdc-uri=/, name=<name>]")
     }
 
     private fun green(value: Any): String = colored(value, Ansi.Color.GREEN)

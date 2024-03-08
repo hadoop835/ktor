@@ -18,7 +18,6 @@ import java.nio.*
 import kotlin.coroutines.*
 import kotlin.test.*
 
-@kotlin.Suppress("BlockingMethodInNonBlockingContext")
 class RequestProducerTest {
 
     @OptIn(InternalAPI::class)
@@ -108,7 +107,7 @@ class RequestProducerTest {
             delay(10)
             content.writeStringUtf8("x")
             delay(10)
-            content.close()
+            content.flushAndClose()
         }
 
         val result = async {
@@ -139,6 +138,7 @@ class RequestProducerTest {
                 delay(100)
                 writeStringUtf8("x")
                 delay(100)
+                println("done")
             },
             contentType = null
         )
@@ -148,7 +148,9 @@ class RequestProducerTest {
         val ioctrl = TestIOControl()
 
         val result = async {
-            encoder.channel.readRemaining().readText()
+            val result = encoder.channel.readRemaining().readText()
+            println("done 2: $result")
+            result
         }
 
         GlobalScope.launch {
@@ -156,6 +158,7 @@ class RequestProducerTest {
                 if (ioctrl.outputSuspended) continue
                 producer.produceContent(encoder, ioctrl)
             }
+            println("done 3")
         }
 
         assertEquals("xxxxx", result.await())
@@ -221,13 +224,13 @@ class RequestProducerTest {
 private class TestEncoder : ContentEncoder {
     val channel = ByteChannel()
 
-    override fun write(src: ByteBuffer): Int = runBlocking {
+    override fun write(src: ByteBuffer): Int {
         channel.writeAvailable(src)
-        src.limit()
+        return src.limit()
     }
 
-    override fun complete() {
-        channel.close()
+    override fun complete() = runBlocking {
+        channel.flushAndClose()
     }
 
     override fun isCompleted(): Boolean = channel.isClosedForWrite

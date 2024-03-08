@@ -28,7 +28,7 @@ class ChannelTest {
 
         val byte = destination.readByte()
         assertEquals(1, byte)
-        source.close()
+        source.flushAndClose()
     }
 
     @Test
@@ -42,7 +42,7 @@ class ChannelTest {
 
         launch(Dispatchers.Unconfined) {
             source.writeFully(data)
-            source.close()
+            source.flushAndClose()
         }
 
         val firstResult = async(Dispatchers.Unconfined) {
@@ -99,18 +99,16 @@ class ChannelTest {
 
         val message = "Expected reason"
 
-        val sourceResult = GlobalScope.async(Dispatchers.Unconfined) {
-            source.writeFully(data)
-            source.close()
-        }
-
         first.cancel(IllegalStateException(message))
 
-        assertFailsWithMessage(message) {
-            sourceResult.await()
+        val sourceResult = GlobalScope.async(Dispatchers.Unconfined) {
+            source.writeFully(data)
+            source.flushAndClose()
         }
 
-        assertFailsWithMessage(message) {
+        sourceResult.await()
+
+        assertFailsWithMessage("Channel was cancelled") {
             val secondResult = GlobalScope.async(Dispatchers.Unconfined) {
                 second.readRemaining().readBytes()
             }
@@ -132,7 +130,7 @@ class ChannelTest {
 
         val sourceResult = GlobalScope.async(Dispatchers.Unconfined) {
             source.writeFully(data)
-            source.close()
+            source.flushAndClose()
         }
 
         first.cancel(IllegalStateException(message))

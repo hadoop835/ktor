@@ -53,6 +53,7 @@ internal class ApacheRequestProducer(
         is OutgoingContent.ReadChannelContent -> body.readFrom()
         is OutgoingContent.WriteChannelContent -> GlobalScope.writer(callContext, autoFlush = true) {
             body.writeTo(channel)
+            println("channel write done")
         }.channel
         is OutgoingContent.ContentWrapper -> getChannel(callContext, body.delegate())
     }

@@ -13,19 +13,16 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.test.base.*
-import io.ktor.server.testing.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.*
-import org.junit.jupiter.api.*
 import java.net.*
 import java.nio.*
 import java.time.*
 import java.util.concurrent.atomic.*
 import kotlin.coroutines.*
 import kotlin.test.*
-import kotlin.test.Test
 import kotlin.text.toByteArray
 import kotlin.time.Duration.Companion.seconds
 
@@ -233,7 +230,7 @@ abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguratio
                                     channel.flush()
                                 }
 
-                                channel.close()
+                                channel.flushAndClose()
                             }
                         }
                     )
@@ -287,7 +284,7 @@ abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguratio
                                     channel.flush()
                                 }
 
-                                channel.close()
+                                channel.flushAndClose()
                             }
                         }
                     )
@@ -348,7 +345,7 @@ abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguratio
                                     input.readFully(bb)
                                     bb.flip()
                                     output.writeFully(bb)
-                                    output.close()
+                                    output.flushAndClose()
                                     input.readRemaining().use {
                                         assertEquals(0, it.remaining)
                                     }
@@ -400,7 +397,7 @@ abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguratio
                     } catch (t: Throwable) {
                         ch.close(t)
                     } finally {
-                        ch.close()
+                        ch.flushAndClose()
                     }
                 }
 
@@ -515,3 +512,4 @@ abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguratio
             .replace("200 OK", "200")
             .replace("400 Bad Request", "400")
 }
+

@@ -11,7 +11,6 @@ import io.ktor.server.engine.*
 import io.ktor.server.engine.internal.*
 import io.ktor.util.logging.*
 import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
 import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import kotlin.time.Duration.Companion.seconds
@@ -19,7 +18,7 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * Start a http server with [settings] invoking [handler] for every request
  */
-@OptIn(InternalAPI::class)
+@OptIn(InternalAPI::class, ExperimentalStdlibApi::class)
 public fun CoroutineScope.httpServer(
     settings: HttpServerSettings,
     handler: HttpRequestHandler

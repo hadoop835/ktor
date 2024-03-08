@@ -611,7 +611,7 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
         }
     }
 
-    @OptIn(InternalAPI::class)
+    @OptIn(InternalAPI::class, ExperimentalStdlibApi::class)
     @Test
     open fun testCanModifyRequestHeaders() {
         createAndStartServer {
@@ -650,7 +650,7 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
         }
     }
 
-    @OptIn(InternalAPI::class, DelicateCoroutinesApi::class)
+    @OptIn(InternalAPI::class, DelicateCoroutinesApi::class, ExperimentalStdlibApi::class)
     @Test
     open fun testCanModifyRequestBody() {
         createAndStartServer {
@@ -678,7 +678,7 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
             HttpClient().use { client ->
                 val requestBody = ByteChannel(true)
                 requestBody.writeStringUtf8("test")
-                requestBody.close()
+                requestBody.flushAndClose()
 
                 val response = client.post("http://127.0.0.1:$port/") {
                     setBody(requestBody)

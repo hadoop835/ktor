@@ -71,7 +71,7 @@ public class CIOMultipartDataBase(
             try {
                 return PartData.FormItem(packet.readText(), { part.release() }, CIOHeaders(headers))
             } finally {
-                packet.release()
+                packet.close()
             }
         }
 

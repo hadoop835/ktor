@@ -11,7 +11,7 @@ import io.ktor.client.tests.utils.*
 import io.ktor.util.*
 import kotlin.test.*
 
-class AttributesTest : ClientLoader() {
+class AttributesTest : ClientLoader(Int.MAX_VALUE) {
     @Test
     fun testKeepAttributes() = clientTests {
         val attrName = "my-key"
@@ -19,6 +19,7 @@ class AttributesTest : ClientLoader() {
         config {
             install("attr-test") {
                 receivePipeline.intercept(HttpReceivePipeline.After) {
+                    println("Intercepting")
                     val attr = it.call.request.attributes[AttributeKey<String>(attrName)]
 
                     assertEquals("test-data", attr)
@@ -27,6 +28,7 @@ class AttributesTest : ClientLoader() {
         }
 
         test { client ->
+            println("Client: $client")
             val response = client.get("$TEST_SERVER/content/hello") {
                 setAttributes {
                     put(
@@ -34,9 +36,15 @@ class AttributesTest : ClientLoader() {
                         "test-data"
                     )
                 }
-            }.body<String>()
+            }
 
-            assertEquals("hello", response)
+            println("Response: $response")
+
+            val body = response.body<String>()
+
+            println("Done")
+
+            assertEquals("hello", body)
         }
     }
 }

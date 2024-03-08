@@ -15,13 +15,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.test.base.*
-import io.ktor.util.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.debug.junit5.*
 import java.io.*
 import kotlin.test.*
-import kotlin.test.Test
 
 abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration>(
     hostFactory: ApplicationEngineFactory<TEngine, TConfiguration>
@@ -288,7 +287,7 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
                     object : OutgoingContent.WriteChannelContent() {
                         override suspend fun writeTo(channel: ByteWriteChannel) {
                             channel.writeFully(data)
-                            channel.close()
+                            channel.flushAndClose()
                         }
                     }
                 )
@@ -299,7 +298,7 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
                         override val contentLength: Long? get() = size
                         override suspend fun writeTo(channel: ByteWriteChannel) {
                             channel.writeFully(data)
-                            channel.close()
+                            channel.flushAndClose()
                         }
                     }
                 )

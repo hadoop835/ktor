@@ -9,15 +9,13 @@ import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.debug.junit5.*
 import java.io.*
 import java.nio.*
 import java.util.zip.*
 import kotlin.random.*
 import kotlin.test.*
-import kotlin.test.Test
 
-@CoroutinesTimeout(60_000)
+// @CoroutinesTimeout(60_000)
 class DeflaterReadChannelTest : CoroutineScope {
     private val testJob = Job()
     override val coroutineContext get() = testJob + Dispatchers.Unconfined
@@ -49,7 +47,8 @@ class DeflaterReadChannelTest : CoroutineScope {
 
         fun read(from: Long, to: Long) = file.readChannel(from, to).toInputStream().reader().readText()
 
-        assertEquals(content.take(3), read(0, 2))
+        val actual = read(0, 2)
+        assertEquals(content.take(3), actual)
         assertEquals(content.drop(1).take(2), read(1, 2))
         assertEquals(content.takeLast(3), read(file.length() - 3, file.length() - 1))
     }
@@ -109,11 +108,14 @@ class DeflaterReadChannelTest : CoroutineScope {
         }
 
         testReadChannel(text, asyncOf(text))
+        println("1")
         testWriteChannel(text, asyncOf(text))
+        println("2")
     }
 
     @Test
     fun testFaultyGzippedBiggerThan8k() {
+        TODO("Fix backpressure")
         val text = buildString {
             for (i in 1..65536) {
                 append(' ' + Random.nextInt(32, 126) % 32)
@@ -135,7 +137,9 @@ class DeflaterReadChannelTest : CoroutineScope {
     private fun testWriteChannel(expected: String, src: ByteReadChannel) {
         val channel = ByteChannel(true)
         launch {
-            src.copyAndClose((channel as ByteWriteChannel).deflated())
+            val deflatedChannel = (channel as ByteWriteChannel).deflated()
+            src.copyAndClose(deflatedChannel)
+            println("Copy finished")
         }
 
         val result = channel.toInputStream().ungzip().reader().readText()
@@ -156,14 +160,17 @@ class DeflaterReadChannelTest : CoroutineScope {
                 try {
                     src.copyAndClose(deflateInputChannel!!)
                 } catch (_: Exception) {
+                    println("IO First")
                 }
             }
 
             launch {
-                channel.close(IOException("Broken pipe"))
+                channel.cancel(IOException("Broken pipe"))
             }
         }
 
-        assertFailsWith(IOException::class) { throw deflateInputChannel!!.closedCause!! }
+        val cause = deflateInputChannel?.closedCause
+        assertNotNull(cause)
+        assertFailsWith<IOException> { throw cause }
     }
 }

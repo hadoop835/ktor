@@ -20,6 +20,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import kotlin.coroutines.*
 
+@OptIn(ExperimentalStdlibApi::class)
 internal class Endpoint(
     private val host: String,
     private val port: Int,
@@ -163,7 +164,7 @@ internal class Endpoint(
                 }
 
                 else -> {
-                    output.close()
+                    output.flushAndClose()
                     return@withContext response
                 }
             }

@@ -3,7 +3,6 @@
  */
 
 import org.jetbrains.dokka.gradle.*
-import org.jetbrains.kotlin.buildtools.api.*
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.targets.js.*
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.*
@@ -98,7 +97,7 @@ apply(from = "gradle/compatibility.gradle")
 
 plugins {
     id("org.jetbrains.dokka") version "1.9.10" apply false
-    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.13.2"
+    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.14.0"
     id("kotlinx-atomicfu") version "0.23.1" apply false
     id("com.osacky.doctor") version "0.9.1"
 }
@@ -119,6 +118,7 @@ allprojects {
         mavenCentral()
         maven(url = "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlinx/dev")
     }
 
     val nonDefaultProjectStructure: List<String> by rootProject.extra

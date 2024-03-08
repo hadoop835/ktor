@@ -17,7 +17,6 @@ import io.ktor.server.engine.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import io.ktor.util.logging.*
-import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.*
 import kotlin.time.Duration.Companion.seconds
@@ -38,6 +37,7 @@ actual constructor(
     @Retention
     protected actual annotation class Http2Only actual constructor()
 
+    @OptIn(ExperimentalStdlibApi::class)
     protected actual var port: Int = aSocket(TEST_SELECTOR_MANAGER).tcp().bind().use {
         val inetAddress = it.localAddress as? InetSocketAddress ?: error("Expected inet socket address")
         inetAddress.port
@@ -139,6 +139,7 @@ actual constructor(
         withUrl("http://127.0.0.1:$port$path", port, builder, block)
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     private fun withUrl(
         urlString: String,
         port: Int,

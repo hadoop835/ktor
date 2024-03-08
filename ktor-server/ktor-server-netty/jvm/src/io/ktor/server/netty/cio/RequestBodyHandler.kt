@@ -48,7 +48,7 @@ internal class RequestBodyHandler(
                         processContent(channel, event)
 
                         if (!upgraded && event is LastHttpContent) {
-                            current.close()
+                            current.flushAndClose()
                             current = null
                         }
                         requestMoreEvents()
@@ -61,7 +61,7 @@ internal class RequestBodyHandler(
                     }
 
                     is ByteWriteChannel -> {
-                        current?.close()
+                        current?.flushAndClose()
                         current = event
                     }
 
@@ -74,7 +74,7 @@ internal class RequestBodyHandler(
             queue.close(t)
             current?.close(t)
         } finally {
-            current?.close()
+            current?.flushAndClose()
             queue.close()
             consumeAndReleaseQueue()
         }
@@ -162,7 +162,7 @@ internal class RequestBodyHandler(
             } ?: break
 
             when (e) {
-                is ByteChannel -> e.close()
+                is ByteChannel -> e.cancel()
                 is ReferenceCounted -> e.release()
                 else -> {
                 }

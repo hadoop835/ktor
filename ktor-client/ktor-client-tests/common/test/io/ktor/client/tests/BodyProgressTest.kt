@@ -2,12 +2,9 @@
  * Copyright 2014-2021 JetBrains s.r.o and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("DEPRECATION")
-
 package io.ktor.client.tests
 
 import io.ktor.client.call.*
-import io.ktor.client.content.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
@@ -29,7 +26,7 @@ private val TEST_ARRAY = ByteArray(8 * 1025) { 1 }
 private val TEST_NAME = "123".repeat(5000)
 
 @OptIn(DelicateCoroutinesApi::class)
-class BodyProgressTest : ClientLoader(timeoutSeconds = 60) {
+class BodyProgressTest : ClientLoader(timeoutSeconds = 5) {
 
     @Serializable
     data class User(val login: String, val id: Long)
@@ -71,7 +68,7 @@ class BodyProgressTest : ClientLoader(timeoutSeconds = 60) {
                         override suspend fun writeTo(channel: ByteWriteChannel) {
                             channel.writeFully(TEST_ARRAY)
                             channel.writeFully(TEST_ARRAY)
-                            channel.close()
+                            channel.flushAndClose()
                         }
                     }
                 )
@@ -92,7 +89,7 @@ class BodyProgressTest : ClientLoader(timeoutSeconds = 60) {
             GlobalScope.launch {
                 channel.writeFully(TEST_ARRAY)
                 channel.writeFully(TEST_ARRAY)
-                channel.close()
+                channel.flushAndClose()
             }
 
             val response: HttpResponse = client.post("$TEST_SERVER/content/echo") {
@@ -176,7 +173,7 @@ class BodyProgressTest : ClientLoader(timeoutSeconds = 60) {
             GlobalScope.launch {
                 channel.writeFully(TEST_ARRAY)
                 channel.writeFully(TEST_ARRAY)
-                channel.close()
+                channel.flushAndClose()
             }
 
             client.preparePost("$TEST_SERVER/content/echo") {
@@ -200,7 +197,7 @@ class BodyProgressTest : ClientLoader(timeoutSeconds = 60) {
             GlobalScope.launch {
                 channel.writeFully(TEST_ARRAY)
                 channel.writeFully(TEST_ARRAY)
-                channel.close()
+                channel.flushAndClose()
             }
 
             client.preparePost("$TEST_SERVER/content/echo") {

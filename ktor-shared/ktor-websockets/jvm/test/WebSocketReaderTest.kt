@@ -16,8 +16,8 @@ class WebSocketReaderTest {
         serializer.enqueue(frame)
 
         while (serializer.hasOutstandingBytes) {
-            channel.write {
-                serializer.serialize(it)
+            channel.write { buffer ->
+                serializer.serialize(buffer)
             }
         }
     }

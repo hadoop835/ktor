@@ -363,7 +363,7 @@ class ServerSentEventsTest : ClientLoader(timeoutSeconds = 120) {
                 engineContext: CoroutineContext,
                 userContext: CoroutineContext
             ): Job {
-                output.close()
+                output.cancel()
                 return Job()
             }
         }

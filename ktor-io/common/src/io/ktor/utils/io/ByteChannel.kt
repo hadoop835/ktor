@@ -59,7 +59,6 @@ public class ByteChannel : ByteReadChannel, ByteWriteChannel {
     override val isClosedForRead: Boolean
         get() = isClosedForWrite && flushBufferSize == 0 && readBuffer.exhausted()
 
-    @OptIn(InternalAPI::class)
     override suspend fun awaitContent(): Boolean {
         closedCause?.let { throw it }
 
@@ -100,7 +99,7 @@ public class ByteChannel : ByteReadChannel, ByteWriteChannel {
         slot.cancel(null)
     }
 
-    override fun cancel(cause: Throwable?) {
+    override fun cancel(cause: Throwable) {
         if (_closedCause.value != null) return
 
         val actualCause = IOException("Channel was cancelled", cause)

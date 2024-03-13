@@ -51,15 +51,11 @@ internal class SocketReadChannel(
         return closed != null
     }
 
-    override fun cancel(cause: Throwable?) {
+    override fun cancel(cause: Throwable) {
         buffer.close()
         selectable.interestOp(SelectInterest.READ, false)
 
         if (closed != null) return
-        closed = if (cause == null) {
-            ClosedToken(CancellationException("Channel has been cancelled"))
-        } else {
-            ClosedToken(cause)
-        }
+        closed = ClosedToken(IOException("Channel was cancelled", cause))
     }
 }

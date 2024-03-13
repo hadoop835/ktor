@@ -106,7 +106,7 @@ internal class ApacheRequestEntityProducer(
 
     init {
         producerJob.invokeOnCompletion { cause ->
-            channel.cancel(cause)
+            if (cause != null) channel.cancel(cause)
         }
     }
 

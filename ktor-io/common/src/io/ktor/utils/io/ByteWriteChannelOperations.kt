@@ -72,7 +72,11 @@ public fun ByteWriteChannel.writePacket(copy: Source) {
 }
 
 public fun ByteWriteChannel.close(cause: Throwable?) {
-    cancel(cause)
+    if (cause == null) {
+        GlobalScope.launch { flushAndClose() }
+    } else {
+        cancel(cause)
+    }
 }
 
 @JvmInline

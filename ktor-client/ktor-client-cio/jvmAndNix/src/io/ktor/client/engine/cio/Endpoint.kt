@@ -108,9 +108,10 @@ internal class Endpoint(
             callContext[Job]!!.invokeOnCompletion { cause ->
                 val originCause = cause?.unwrapCancellationException()
                 try {
-                    input.cancel(originCause)
-                    originOutput.close(originCause)
-                    connection.socket.close()
+                    if (originCause != null) {
+                        output.cancel(originCause)
+                    }
+                    GlobalScope.launch { originOutput.flushAndClose() }
                     releaseConnection()
                 } catch (_: Throwable) {
                 }

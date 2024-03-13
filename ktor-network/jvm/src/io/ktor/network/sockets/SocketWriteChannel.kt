@@ -48,10 +48,12 @@ internal class SocketWriteChannel(
         flush()
     }
 
-    override fun cancel(cause: Throwable?) {
-        val token = ClosedToken(cause)
+    override fun cancel(cause: Throwable) {
+        val actualCause = IOException("Channel was cancelled", cause)
+
+        val token = ClosedToken(actualCause)
         if (_closed.compareAndSet(null, token)) {
-            selectable.close()
+            selectable.cancel(cause)
         }
     }
 }

@@ -50,13 +50,9 @@ public fun ByteReadChannel(source: Source): ByteReadChannel = object : ByteReadC
         return false
     }
 
-    override fun cancel(cause: Throwable?) {
+    override fun cancel(cause: Throwable) {
         if (closed != null) return
         source.close()
-        closed = if (cause == null) {
-            ClosedToken(IOException("Channel has been cancelled"))
-        } else {
-            ClosedToken(cause)
-        }
+        closed = ClosedToken(cause)
     }
 }

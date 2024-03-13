@@ -27,7 +27,7 @@ public interface ByteWriteChannel {
 
     public suspend fun flushAndClose()
 
-    public fun cancel(cause: Throwable?)
+    public fun cancel(cause: Throwable)
 }
 
 @Deprecated(
@@ -42,9 +42,9 @@ public fun ByteWriteChannel.close() {
 }
 
 public fun ByteChannel.cancel() {
-    cancel(null)
+    cancel(IOException("Channel was cancelled"))
 }
 
 public fun ByteWriteChannel.cancel() {
-    cancel(null)
+    cancel(IOException("Channel was cancelled"))
 }

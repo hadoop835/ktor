@@ -32,7 +32,7 @@ public fun String(
  */
 @Deprecated(
     "Use readByteArray instead",
-    ReplaceWith("this.readByteArray()"),
+    ReplaceWith("this.readByteArray()", "kotlinx.io.readByteArray"),
 )
 public fun Source.readBytes(): ByteArray = readByteArray()
 

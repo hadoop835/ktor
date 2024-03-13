@@ -84,6 +84,7 @@ class ContentTest : ClientLoader(5 * 60) {
             }
         }
         test { client ->
+            println(client)
             testArrays.forEach { content ->
                 val responseData = client.echo<ByteReadChannel>(content)
                 val data = responseData.readRemaining().readBytes()

@@ -65,13 +65,9 @@ internal class RawSourceChannel(
         return closedToken != null
     }
 
-    override fun cancel(cause: Throwable?) {
+    override fun cancel(cause: Throwable) {
         if (closedToken != null) return
         source.close()
-        closedToken = if (cause == null) {
-            ClosedToken(null)
-        } else {
-            ClosedToken(IOException("Channel has been cancelled", cause))
-        }
+        closedToken = ClosedToken(IOException("Channel has been cancelled", cause))
     }
 }

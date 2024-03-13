@@ -13,7 +13,7 @@ import java.nio.channels.*
 @OptIn(SnapshotApi::class, UnsafeIoApi::class)
 internal fun WritableByteChannel.write(buffer: Buffer): Long {
     check(this is GatheringByteChannel)
-    val tmp = arrayOfNulls<ByteBuffer>(100)
+    val tmp = arrayOfNulls<ByteBuffer>(1000)
     var count = 0L
     UnsafeBufferAccessors.readFully(buffer, tmp) { array, startIndex, endIndex ->
         count = write(array, startIndex, endIndex - startIndex)
